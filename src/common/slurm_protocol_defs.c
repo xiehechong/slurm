@@ -326,6 +326,11 @@ extern int slurm_addto_char_list_with_case(List char_list, char *names,
 						goto endit;
 					}
 				} else {
+					/*
+					 * Should not get here but use
+					 * hostlist_create outside of this
+					 */
+					xassert(true);
 					brack_not = false;
 					/*
 					 * Skip over the "," so it is

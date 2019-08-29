@@ -1187,22 +1187,61 @@ extern List as_mysql_get_cluster_events(mysql_conn_t *mysql_conn, uint32_t uid,
 		break;
 	}
 
-	if (event_cond->node_list
-	    && list_count(event_cond->node_list)) {
+	if (event_cond->node_list) {
+		int dims = 0;
+		char *query = NULL;
+		hostlist_t temp_hl = NULL;
+
 		set = 0;
 		if (extra)
 			xstrcat(extra, " && (");
 		else
 			xstrcat(extra, " where (");
-		itr = list_iterator_create(event_cond->node_list);
-		while ((object = list_next(itr))) {
+		/* Query the DB*/
+		query = xstrdup_printf("select dimensions, flags from %s "
+				       "where name='%s'",
+				       cluster_table,
+				       (char *)list_peek(event_cond->cluster_list));
+		debug4("%d(%s:%d) query\n%s",
+		       mysql_conn->conn, THIS_FILE, __LINE__, query);
+		if (!(result = mysql_db_query_ret(mysql_conn, query, 0))) {
+			xfree(query);
+			return NULL;
+		}
+		xfree(query);
+		/*Get the dims for our hostlist*/
+		if (!(row = mysql_fetch_row(result))) {
+			error("Couldn't get the dimensions of hostlist '%s'.",
+			      event_cond->node_list);
+			mysql_free_result(result);
+			return NULL;
+		}
+		/*
+		 * On a Cray System when dealing with hostlists as
+		 * we are her this always needs to be 1.
+		 */
+		if (slurm_atoul(row[1]) & CLUSTER_FLAG_CRAY_A)
+			dims = 1;
+		else
+			dims = atoi(row[0]);
+
+		mysql_free_result(result);
+
+		temp_hl = hostlist_create_dims(event_cond->node_list, dims);
+		if (hostlist_count(temp_hl) <= 0) {
+			error("we didn't get any real hosts to look for.");
+			return NULL;
+		}
+
+		while ((object = hostlist_shift(temp_hl))) {
 			if (set)
 				xstrcat(extra, " || ");
 			xstrfmtcat(extra, "node_name='%s'", object);
 			set = 1;
+			free(object);
 		}
-		list_iterator_destroy(itr);
 		xstrcat(extra, ")");
+		hostlist_destroy(temp_hl);
 	}
 
 	if (event_cond->period_start) {
