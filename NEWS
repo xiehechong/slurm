@@ -32,6 +32,7 @@ documents those changes that are of interest to users and administrators.
  -- Remove duplicate log entry on update job.
  -- Ignore PART_NODES reservation flag after ignoring it at creation.
  FOR 20.02
+ -- Enforce specification of partition and ALL nodes with PART_NODES flag.
 
 * Changes in Slurm 19.05.3-2
 ============================

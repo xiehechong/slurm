@@ -136,6 +136,9 @@ HIGHLIGHTS
     were off limits for allocation. This caused more nodes to be booted than
     needed in a cloud environment.
 
+ -- Enforce having partition name and nodelist=ALL when creating reservations
+    with flags=PART_NODES.
+
 SPECIAL NOTES FOR CRAY SYSTEMS
 ==============================
 The 19.05 release includes some major restructuring for Cray systems in
