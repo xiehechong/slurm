@@ -31,6 +31,7 @@ documents those changes that are of interest to users and administrators.
  -- Append ": reboot issued" to node reason when reboot is issued from
     controller. Previously only happened when nextstate was specified.
  -- Add default jobname of "no-shell" for salloc --no-shell.
+ -- Add gpu/rsmi plugin to support AMD GPUs
 
 * Changes in Slurm 19.05.4
 ==========================
