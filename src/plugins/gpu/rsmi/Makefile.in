@@ -14,10 +14,7 @@
 
 @SET_MAKE@
 
-# Makefile for acct_gather_energy/ipmi plugin
-
-#dprx need to uncomment this when safe to build
-#SUBDIRS = include lib
+# Makefile for gpu/rsmi plugin
 
 VPATH = @srcdir@
 am__is_gnu_make = { \
@@ -94,7 +91,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-subdir = src/plugins/acct_gather_energy/ipmi
+subdir = src/plugins/gpu/rsmi
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/auxdir/ax_check_compile_flag.m4 \
 	$(top_srcdir)/auxdir/ax_check_zlib.m4 \
@@ -176,30 +173,17 @@ am__uninstall_files_from_dir = { \
   }
 am__installdirs = "$(DESTDIR)$(pkglibdir)"
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
-am__DEPENDENCIES_1 =
-@BUILD_IPMI_TRUE@acct_gather_energy_ipmi_la_DEPENDENCIES =  \
-@BUILD_IPMI_TRUE@	$(am__DEPENDENCIES_1)
-am__acct_gather_energy_ipmi_la_SOURCES_DIST =  \
-	acct_gather_energy_ipmi.c acct_gather_energy_ipmi_config.c \
-	acct_gather_energy_ipmi_config.h
-@BUILD_IPMI_TRUE@am_acct_gather_energy_ipmi_la_OBJECTS =  \
-@BUILD_IPMI_TRUE@	acct_gather_energy_ipmi.lo \
-@BUILD_IPMI_TRUE@	acct_gather_energy_ipmi_config.lo
-am__EXTRA_acct_gather_energy_ipmi_la_SOURCES_DIST =  \
-	acct_gather_energy_ipmi.c acct_gather_energy_ipmi_config.c \
-	acct_gather_energy_ipmi_config.h
-acct_gather_energy_ipmi_la_OBJECTS =  \
-	$(am_acct_gather_energy_ipmi_la_OBJECTS)
+gpu_rsmi_la_LIBADD =
+am__objects_1 = gpu_rsmi.lo
+am_gpu_rsmi_la_OBJECTS = $(am__objects_1)
+gpu_rsmi_la_OBJECTS = $(am_gpu_rsmi_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-acct_gather_energy_ipmi_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(AM_CFLAGS) $(CFLAGS) $(acct_gather_energy_ipmi_la_LDFLAGS) \
-	$(LDFLAGS) -o $@
-@BUILD_IPMI_TRUE@am_acct_gather_energy_ipmi_la_rpath = -rpath \
-@BUILD_IPMI_TRUE@	$(pkglibdir)
+gpu_rsmi_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(gpu_rsmi_la_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -215,8 +199,7 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir) -I$(top_builddir)/slurm
 depcomp = $(SHELL) $(top_srcdir)/auxdir/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/acct_gather_energy_ipmi.Plo \
-	./$(DEPDIR)/acct_gather_energy_ipmi_config.Plo
+am__depfiles_remade = ./$(DEPDIR)/gpu_rsmi.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -236,10 +219,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(acct_gather_energy_ipmi_la_SOURCES) \
-	$(EXTRA_acct_gather_energy_ipmi_la_SOURCES)
-DIST_SOURCES = $(am__acct_gather_energy_ipmi_la_SOURCES_DIST) \
-	$(am__EXTRA_acct_gather_energy_ipmi_la_SOURCES_DIST)
+SOURCES = $(gpu_rsmi_la_SOURCES)
+DIST_SOURCES = $(gpu_rsmi_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -514,23 +495,13 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
-AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/src/common $(FREEIPMI_CPPFLAGS)
-@BUILD_IPMI_TRUE@PLUGIN_FLAGS = -module -avoid-version --export-dynamic
-@BUILD_IPMI_TRUE@pkglib_LTLIBRARIES = acct_gather_energy_ipmi.la
-
-# Energy accounting ipmi plugin.
-@BUILD_IPMI_TRUE@acct_gather_energy_ipmi_la_SOURCES = acct_gather_energy_ipmi.c \
-@BUILD_IPMI_TRUE@                                     acct_gather_energy_ipmi_config.c \
-@BUILD_IPMI_TRUE@                                     acct_gather_energy_ipmi_config.h
-
-
-#acct_gather_energy_ipmi_la_CFLAGS = $(MYSQL_CFLAGS)
-@BUILD_IPMI_TRUE@acct_gather_energy_ipmi_la_LDFLAGS = $(PLUGIN_FLAGS) $(FREEIPMI_LDFLAGS)
-@BUILD_IPMI_TRUE@acct_gather_energy_ipmi_la_LIBADD = $(FREEIPMI_LIBS)
-@BUILD_IPMI_FALSE@EXTRA_acct_gather_energy_ipmi_la_SOURCES = acct_gather_energy_ipmi.c \
-@BUILD_IPMI_FALSE@                                     acct_gather_energy_ipmi_config.c \
-@BUILD_IPMI_FALSE@                                     acct_gather_energy_ipmi_config.h
-
+PLUGIN_FLAGS = -module -avoid-version --export-dynamic
+AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/src/common $(RSMI_CPPFLAGS)
+RSMI_SOURCES = gpu_rsmi.c
+pkglib_LTLIBRARIES = gpu_rsmi.la
+gpu_rsmi_la_SOURCES = $(RSMI_SOURCES)
+# gpu_rsmi_la_LDFLAGS = $(PLUGIN_FLAGS) $(RSMI_LDFLAGS)
+gpu_rsmi_la_LDFLAGS = $(PLUGIN_FLAGS)
 all: all-am
 
 .SUFFIXES:
@@ -544,9 +515,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/plugins/acct_gather_energy/ipmi/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/plugins/gpu/rsmi/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign src/plugins/acct_gather_energy/ipmi/Makefile
+	  $(AUTOMAKE) --foreign src/plugins/gpu/rsmi/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -600,8 +571,8 @@ clean-pkglibLTLIBRARIES:
 	  rm -f $${locs}; \
 	}
 
-acct_gather_energy_ipmi.la: $(acct_gather_energy_ipmi_la_OBJECTS) $(acct_gather_energy_ipmi_la_DEPENDENCIES) $(EXTRA_acct_gather_energy_ipmi_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(acct_gather_energy_ipmi_la_LINK) $(am_acct_gather_energy_ipmi_la_rpath) $(acct_gather_energy_ipmi_la_OBJECTS) $(acct_gather_energy_ipmi_la_LIBADD) $(LIBS)
+gpu_rsmi.la: $(gpu_rsmi_la_OBJECTS) $(gpu_rsmi_la_DEPENDENCIES) $(EXTRA_gpu_rsmi_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(gpu_rsmi_la_LINK) -rpath $(pkglibdir) $(gpu_rsmi_la_OBJECTS) $(gpu_rsmi_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -609,8 +580,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/acct_gather_energy_ipmi.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/acct_gather_energy_ipmi_config.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gpu_rsmi.Plo@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -773,8 +743,7 @@ clean-am: clean-generic clean-libtool clean-pkglibLTLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/acct_gather_energy_ipmi.Plo
-	-rm -f ./$(DEPDIR)/acct_gather_energy_ipmi_config.Plo
+		-rm -f ./$(DEPDIR)/gpu_rsmi.Plo
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -820,8 +789,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/acct_gather_energy_ipmi.Plo
-	-rm -f ./$(DEPDIR)/acct_gather_energy_ipmi_config.Plo
+		-rm -f ./$(DEPDIR)/gpu_rsmi.Plo
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -859,6 +827,7 @@ uninstall-am: uninstall-pkglibLTLIBRARIES
 
 .PRECIOUS: Makefile
 
+# gpu_rsmi_la_LIBADD = $(RSMI_LIBS)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
