@@ -32,6 +32,7 @@ documents those changes that are of interest to users and administrators.
     controller. Previously only happened when nextstate was specified.
  -- Add default jobname of "no-shell" for salloc --no-shell.
  -- Add gpu/rsmi plugin to support AMD GPUs
+ -- Make it so you can "stack" the energy plugins
 
 * Changes in Slurm 19.05.4
 ==========================
