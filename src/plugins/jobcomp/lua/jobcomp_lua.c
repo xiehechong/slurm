@@ -83,6 +83,11 @@ static lua_State *L = NULL;
 static time_t lua_script_last_loaded = (time_t) 0;
 static int _job_rec_field_index(lua_State *L);
 static void _push_job_rec(job_record_t *job_ptr);
+static int _set_job_rec_field_index(lua_State *L);
+
+static const struct luaL_Reg slurm_functions[] = {
+        { NULL,         NULL        }
+};
 
 /*
  *  Mutex for protecting multi-threaded access to this plugin.
@@ -136,6 +141,7 @@ int slurm_jobcomp_log_record(job_record_t *job_ptr)
 	 *  All lua script functions should have been verified during
 	 *   initialization:
 	 */
+
 	lua_getglobal(L, "slurm_jobcomp_log_record");
 	if (lua_isnil(L, -1))
 		goto out;
@@ -197,7 +203,9 @@ static int _load_script(void)
 		return SLURM_ERROR;
 
 	/* local setup */
-	/* no local setup yet... */
+	lua_getglobal(load, "slurm");
+	xlua_table_register(load, NULL, slurm_functions);
+	lua_pop(load, -1);
 
 	/* since complete finished error free, swap the states */
 	if (L)
@@ -214,6 +222,8 @@ static void _push_job_rec(job_record_t *job_ptr)
 	lua_newtable(L);
 	lua_pushcfunction(L, _job_rec_field_index);
 	lua_setfield(L, -2, "__index");
+	lua_pushcfunction(L, _set_job_rec_field_index);
+	lua_setfield(L, -2, "__newindex");
 	/* Store the job_ptr in the metatable, so the index
 	 * function knows which struct it's getting data for.
 	 */
@@ -233,4 +243,28 @@ static int _job_rec_field_index(lua_State *L)
 	job_ptr = lua_touserdata(L, -1);
 
 	return xlua_job_record_field(L, job_ptr, name);
+}
+
+/* Set fields in the job request structure on job submit or modify */
+static int _set_job_rec_field_index(lua_State *L)
+{
+	const char *name, *value_str;
+	job_record_t *job_ptr;
+
+	name = luaL_checkstring(L, 2);
+	lua_getmetatable(L, -3);
+	lua_getfield(L, -1, "_job_rec_ptr");
+	job_ptr = lua_touserdata(L, -1);
+	if (!job_ptr) {
+		error("%s: job_ptr is NULL", __func__);
+	} else if (!xstrcmp(name, "admin_comment")) {
+		value_str = luaL_checkstring(L, 3);
+		xfree(job_ptr->admin_comment);
+		if (strlen(value_str))
+			job_ptr->admin_comment = xstrdup(value_str);
+	} else {
+		error("%s: unrecognized field: %s", __func__, name);
+	}
+
+	return SLURM_SUCCESS;
 }
