@@ -31,6 +31,7 @@ documents those changes that are of interest to users and administrators.
  -- Fix build on 32-bit systems.
  -- Remove duplicate log entry on update job.
  -- Ignore PART_NODES reservation flag after ignoring it at creation.
+ FOR 20.02
 
 * Changes in Slurm 19.05.3-2
 ============================
