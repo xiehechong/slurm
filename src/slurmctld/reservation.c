@@ -2160,7 +2160,7 @@ extern int create_resv(resv_desc_msg_t *resv_desc_ptr)
 		goto bad_parse;
 	}
 	if ((resv_desc_ptr->flags & RESERVE_FLAG_PART_NODES) &&
-	    (xstrcmp(resv_desc_ptr->node_list, "ALL"))) {
+	    (xstrcasecmp(resv_desc_ptr->node_list, "ALL"))) {
 		info("Reservation request with Part_Nodes flag lacks nodelist=ALL specification");
 		rc = ESLURM_INVALID_NODE_NAME;
 		goto bad_parse;
