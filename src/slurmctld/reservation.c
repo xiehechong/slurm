@@ -2524,7 +2524,7 @@ extern int update_resv(resv_desc_msg_t *resv_desc_ptr)
 				error_code = ESLURM_INVALID_PARTITION_NAME;
 				goto update_failure;
 			}
-			if (xstrcmp(resv_desc_ptr->node_list, "ALL")) {
+			if (xstrcasecmp(resv_desc_ptr->node_list, "ALL")) {
 				info("Reservation %s request can not set Part_Nodes flag without partition and nodes=ALL",
 				     resv_desc_ptr->name);
 				error_code = ESLURM_INVALID_NODE_NAME;
