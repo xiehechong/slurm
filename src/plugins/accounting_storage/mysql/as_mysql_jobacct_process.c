@@ -1642,21 +1642,22 @@ extern int setup_job_cond_limits(slurmdb_job_cond_t *job_cond,
 	if (!job_cond->state_list || !list_count(job_cond->state_list)) {
 		/*
 		 * There's an explicit list of jobs, so don't hide
-		 * non-eligible ones. Assuming that
-		 * slurmdb_job_cond_def_start_end is already called.
-		 * Else handle normal time query of only eligible jobs
+		 * non-eligible ones. Else handle normal time query of only
+		 * eligible jobs.
 		 */
 		if (job_cond->step_list && list_count(job_cond->step_list)) {
-			if (*extra)
-				xstrcat(*extra, " && (");
-			else
-				xstrcat(*extra, " where (");
+			if (!(job_cond->flags &
+			      JOBCOND_FLAG_NO_DEFAULT_USAGE)) {
+				if (*extra)
+					xstrcat(*extra, " && (");
+				else
+					xstrcat(*extra, " where (");
 
-			xstrfmtcat(*extra,
-			           "(t1.time_submit <= %ld) && "
-				   "(t1.time_end >= %ld || t1.time_end = 0))",
-			           job_cond->usage_end,
-				   job_cond->usage_start);
+				xstrfmtcat(*extra,
+					   "(t1.time_submit <= %ld) && (t1.time_end >= %ld || t1.time_end = 0))",
+					   job_cond->usage_end,
+					   job_cond->usage_start);
+			}
 		} else if (job_cond->usage_start) {
 			if (*extra)
 				xstrcat(*extra, " && (");
