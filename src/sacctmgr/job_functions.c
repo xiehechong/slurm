@@ -75,7 +75,8 @@ static int _set_cond(int *start, int argc, char **argv,
 			if (!job_cond->cluster_list)
 				job_cond->cluster_list =
 					list_create(slurm_destroy_char);
-			slurm_addto_char_list(job_cond->cluster_list, optarg);
+			slurm_addto_char_list(job_cond->cluster_list,
+					      argv[i]+end);
 		} else if (!xstrncasecmp(argv[i], "JobID",
 					 MAX(command_len, 1))) {
 			if (!job_cond->step_list)
