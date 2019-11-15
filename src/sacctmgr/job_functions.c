@@ -116,6 +116,7 @@ static int _set_cond(int *start, int argc, char **argv,
 					list_create(slurm_destroy_char);
 			slurm_addto_id_char_list(job_cond->userid_list,
 						 argv[i]+end, 0);
+			set = 1;
 		} else {
 			exit_code = 1;
 			fprintf(stderr, " Unknown condition: %s\n"
