@@ -289,8 +289,7 @@ extern int slurm_preempt_fini(void)
 
 extern List slurm_find_preemptable_jobs(job_record_t *job_ptr)
 {
-	preempt_candidates_t candidates
-		= { .preemptor = job_ptr, .preemptee_job_list = NULL };
+	preempt_candidates_t candidates	= { .preemptor = job_ptr };
 
 	/* Validate the preemptor job */
 	if (job_ptr == NULL) {
