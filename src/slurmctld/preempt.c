@@ -292,7 +292,7 @@ extern List slurm_find_preemptable_jobs(job_record_t *job_ptr)
 	preempt_candidates_t candidates	= { .preemptor = job_ptr };
 
 	/* Validate the preemptor job */
-	if (job_ptr == NULL) {
+	if (!job_ptr) {
 		error("%s: job_ptr is NULL", __func__);
 		return NULL;
 	}
@@ -300,11 +300,11 @@ extern List slurm_find_preemptable_jobs(job_record_t *job_ptr)
 		error("%s: %pJ not pending", __func__, job_ptr);
 		return NULL;
 	}
-	if (job_ptr->part_ptr == NULL) {
+	if (!job_ptr->part_ptr) {
 		error("%s: %pJ has NULL partition ptr", __func__, job_ptr);
 		return NULL;
 	}
-	if (job_ptr->part_ptr->node_bitmap == NULL) {
+	if (!job_ptr->part_ptr->node_bitmap) {
 		error("%s: partition %s node_bitmap=NULL",
 		      __func__, job_ptr->part_ptr->name);
 		return NULL;
