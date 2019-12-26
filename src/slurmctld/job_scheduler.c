@@ -232,20 +232,28 @@ static List _build_user_job_list(uint32_t user_id, char* job_name)
 static void _job_queue_append(List job_queue, job_record_t *job_ptr,
 			      part_record_t *part_ptr, uint32_t prio)
 {
-	job_queue_rec_t *job_queue_rec;
+	job_queue_req_t job_queue_req = { .job_ptr = job_ptr,
+					  .job_queue = job_queue,
+					  .part_ptr = part_ptr,
+					  .prio = prio };
 
-	job_queue_rec = xmalloc(sizeof(job_queue_rec_t));
-	job_queue_rec->array_task_id = job_ptr->array_task_id;
-	job_queue_rec->job_id   = job_ptr->job_id;
-	job_queue_rec->job_ptr  = job_ptr;
-	job_queue_rec->part_ptr = part_ptr;
-	job_queue_rec->priority = prio;
-	list_append(job_queue, job_queue_rec);
+	job_queue_append_internal(&job_queue_req);
+
+	if (job_ptr->resv_name)
+		return;
+
+	job_resv_append_promiscuous(&job_queue_req);
 }
 
 static void _job_queue_rec_del(void *x)
 {
-	xfree(x);
+	job_queue_rec_t *job_queue_rec = x;
+
+	if (!x)
+		return;
+
+	xfree(job_queue_rec->resv_name);
+	xfree(job_queue_rec);
 }
 
 /* Return true if the job has some step still in a cleaning state, which
@@ -942,6 +950,25 @@ extern void fill_array_reasons(job_record_t *job_ptr,
 	}
 }
 
+extern void job_queue_append_internal(job_queue_req_t *job_queue_req)
+{
+	job_queue_rec_t *job_queue_rec;
+
+	xassert(job_queue_req);
+	xassert(job_queue_req->job_ptr);
+	xassert(job_queue_req->job_queue);
+	xassert(job_queue_req->part_ptr);
+
+	job_queue_rec = xmalloc(sizeof(job_queue_rec_t));
+	job_queue_rec->array_task_id = job_queue_req->job_ptr->array_task_id;
+	job_queue_rec->job_id   = job_queue_req->job_ptr->job_id;
+	job_queue_rec->job_ptr  = job_queue_req->job_ptr;
+	job_queue_rec->part_ptr = job_queue_req->part_ptr;
+	job_queue_rec->priority = job_queue_req->prio;
+	job_queue_rec->resv_name = xstrdup(job_queue_req->resv_name);
+	list_append(job_queue_req->job_queue, job_queue_rec);
+}
+
 static int _schedule(uint32_t job_limit)
 {
 	ListIterator job_iterator = NULL, part_iterator = NULL;
@@ -1317,8 +1344,15 @@ static int _schedule(uint32_t job_limit)
 	wait_on_resv = false;
 	while (1) {
 		/* Run some final guaranteed logic after each job iteration */
-		if (job_ptr)
+		if (job_ptr) {
+			if (job_ptr->bit_flags & JOB_PROM) {
+				xfree(job_ptr->resv_name);
+				job_ptr->bit_flags &= (~JOB_PROM);
+			}
+
 			fill_array_reasons(job_ptr, reject_array_job);
+		}
+
 		if (fifo_sched) {
 			if (job_ptr && part_iterator &&
 			    IS_JOB_PENDING(job_ptr)) /* test job in next part */
@@ -1370,7 +1404,15 @@ next_part:
 			job_ptr  = job_queue_rec->job_ptr;
 			part_ptr = job_queue_rec->part_ptr;
 			job_ptr->priority = job_queue_rec->priority;
-			xfree(job_queue_rec);
+
+			if (job_queue_rec->resv_name) {
+				xassert(!job_ptr->resv_name);
+				job_ptr->resv_name = job_queue_rec->resv_name;
+				job_queue_rec->resv_name = NULL;
+				job_ptr->bit_flags |= JOB_PROM;
+			}
+
+			_job_queue_rec_del(job_queue_rec);
 			if (!avail_front_end(job_ptr)) {
 				job_ptr->state_reason = WAIT_FRONT_END;
 				xfree(job_ptr->state_desc);

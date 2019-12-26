@@ -51,6 +51,9 @@ typedef struct job_queue_rec {
 	part_record_t *part_ptr;	/* Pointer to partition record. Each
 					 * job may have multiple partitions. */
 	uint32_t priority;		/* Job priority in THIS partition */
+	char *resv_name;                /* If job didn't ask for a reservation,
+					 * this reservation is one it can run
+					 * in without requesting */
 } job_queue_rec_t;
 
 /*
@@ -237,5 +240,9 @@ extern int update_job_dependency(job_record_t *job_ptr, char *new_depend);
  */
 extern void fill_array_reasons(struct job_record *job_ptr,
 			       struct job_record *reject_arr_job);
+
+
+/* Add a job_queue_rec_t to job_queue */
+extern void job_queue_append_internal(job_queue_req_t *job_queue_req);
 
 #endif /* !_JOB_SCHEDULER_H */
