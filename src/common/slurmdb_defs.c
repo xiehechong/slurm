@@ -1210,6 +1210,7 @@ extern void slurmdb_destroy_event_cond(void *object)
 		FREE_NULL_LIST(slurmdb_event->reason_list);
 		FREE_NULL_LIST(slurmdb_event->reason_uid_list);
 		FREE_NULL_LIST(slurmdb_event->state_list);
+		xfree(slurmdb_event->node_list);
 		xfree(slurmdb_event);
 	}
 }

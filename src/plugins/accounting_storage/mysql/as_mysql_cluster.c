@@ -1187,6 +1187,7 @@ extern List as_mysql_get_cluster_events(mysql_conn_t *mysql_conn, uint32_t uid,
 		break;
 	}
 
+	/* Can this be a NULL string? e.g. != '\0' */
 	if (event_cond->node_list) {
 		int dims = 0;
 		char *query = NULL;
@@ -1218,7 +1219,7 @@ extern List as_mysql_get_cluster_events(mysql_conn_t *mysql_conn, uint32_t uid,
 		}
 		/*
 		 * On a Cray System when dealing with hostlists as
-		 * we are her this always needs to be 1.
+		 * we are here this always needs to be 1.
 		 */
 		if (slurm_atoul(row[1]) & CLUSTER_FLAG_CRAY_A)
 			dims = 1;

@@ -3697,15 +3697,7 @@ extern void slurmdb_pack_event_cond(void *in, uint16_t protocol_version,
 		_pack_list_of_str(object->reason_uid_list, buffer);
 		_pack_list_of_str(object->state_list, buffer);
 	} else if (protocol_version >= SLURM_MIN_PROTOCOL_VERSION) {
-		/*
-		 * The variables following were moved to _pack_list_of_str()
-		 * to simplify and reuse code but are still needed for a packstr()
-		 * and olderversions of slurm pre 20_02
-		 */
-		char *tmp_info = NULL;
-		uint32_t count = NO_VAL;
-		List tmp_list = list_create(slurm_destroy_char);
-		ListIterator itr = NULL;
+		List tmp_list = NULL;
 
 		if (!object) {
 			pack32(NO_VAL, buffer);
@@ -3731,19 +3723,10 @@ extern void slurmdb_pack_event_cond(void *in, uint16_t protocol_version,
 		_pack_list_of_str(object->format_list, buffer);
 
 		if (object->node_list) {
-			slurm_addto_char_list(tmp_list,
-					      object->node_list);
-			count = list_count(tmp_list);
+			tmp_list = list_create(slurm_destroy_char);
+			slurm_addto_char_list(tmp_list, object->node_list);
 		}
-		pack32(count, buffer);
-		if (count && (count != NO_VAL)) {
-			itr = list_iterator_create(tmp_list);
-			while ((tmp_info = list_next(itr))) {
-				packstr(tmp_info, buffer);
-			}
-			list_iterator_destroy(itr);
-		}
-		count = NO_VAL;
+		_pack_list_of_str(tmp_list, buffer);
 
 		pack_time(object->period_end, buffer);
 		pack_time(object->period_start, buffer);
@@ -3796,7 +3779,8 @@ extern int slurmdb_unpack_event_cond(void **object, uint16_t protocol_version,
 			}
 		}
 
-		safe_unpackstr_xmalloc(&object_ptr->node_list, &uint32_tmp, buffer);
+		safe_unpackstr_xmalloc(&object_ptr->node_list, &uint32_tmp,
+				       buffer);
 
 		safe_unpack_time(&object_ptr->period_end, buffer);
 		safe_unpack_time(&object_ptr->period_start, buffer);
